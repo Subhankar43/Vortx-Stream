@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VortxStream — Movies & Series</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ── Navbar ── -->
+<nav class="nav">
+  <div class="nav-left">
+    <div class="nav-logo"><a href="/">VortxStream</a></div>
+    <div class="nav-links">
+      <a href="#" class="nav-link active" data-page="home">Home</a>
+      <a href="#" class="nav-link" data-page="movies">Movies</a>
+      <a href="#" class="nav-link" data-page="series">Series</a>
+      <a href="https://vortx.pages.dev/" class="nav-link" target="_blank">Portfolio</a>
+    </div>
+  </div>
+
+  <div class="nav-center">
+    <div class="search-wrap">
+      <svg class="search-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="search-input" id="searchInput" type="text" placeholder="Search movies, series...">
+      <button class="search-clear" id="searchClear" style="display:none">✕</button>
+    </div>
+  </div>
+
+  <div class="nav-right">
+    <button class="nav-btn btn-outline" id="loginBtn">Login</button>
+    <button class="nav-btn btn-primary" id="signupBtn">Sign Up</button>
+    <div class="profile-wrap" id="profileWrap" style="display:none">
+      <div class="profile-avatar" id="profileAvatar">V</div>
+      <div class="profile-dropdown">
+        <div class="profile-name" id="profileName">User</div>
+        <div class="profile-email" id="profileEmail"></div>
+        <hr class="dropdown-divider">
+        <button class="dropdown-item" id="watchlistBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          My Watchlist
+        </button>
+        <button class="dropdown-item" id="progressBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Continue Watching
+        </button>
+        <hr class="dropdown-divider">
+        <button class="dropdown-item danger" id="logoutBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Logout
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ── HOME PAGE ── -->
+<div class="page active" id="homePage">
+  <section class="hero">
+    <div class="hero-bg" id="heroBg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content" id="heroContent">
+      <div class="hero-loader"><span></span><span></span><span></span></div>
+    </div>
+    <div class="hero-dots" id="heroDots"></div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <div class="top10-title">
+        <span class="top10-big">TOP 10</span>
+        <div class="top10-sub"><span>CONTENT</span><span>TODAY</span></div>
+      </div>
+    </div>
+    <div class="top10-row">
+      <button class="row-arrow left" onclick="scrollRow('top10Track',-1)">&#8249;</button>
+      <div class="row-track" id="top10Track"></div>
+      <button class="row-arrow right" onclick="scrollRow('top10Track',1)">&#8250;</button>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <h2 class="section-title"><span class="title-bar"></span>Trending Today</h2>
+      <div class="section-tabs">
+        <button class="stab active" data-track="trendTrack" data-type="movie">Movies</button>
+        <button class="stab" data-track="trendTrack" data-type="tv">Series</button>
+      </div>
+    </div>
+    <div class="card-row">
+      <button class="row-arrow left" onclick="scrollRow('trendTrack',-1)">&#8249;</button>
+      <div class="row-track" id="trendTrack"></div>
+      <button class="row-arrow right" onclick="scrollRow('trendTrack',1)">&#8250;</button>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <h2 class="section-title"><span class="title-bar"></span>Top Rated</h2>
+      <div class="section-tabs">
+        <button class="stab active" data-track="topTrack" data-type="movie">Movies</button>
+        <button class="stab" data-track="topTrack" data-type="tv">Series</button>
+      </div>
+    </div>
+    <div class="card-row">
+      <button class="row-arrow left" onclick="scrollRow('topTrack',-1)">&#8249;</button>
+      <div class="row-track" id="topTrack"></div>
+      <button class="row-arrow right" onclick="scrollRow('topTrack',1)">&#8250;</button>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <h2 class="section-title"><span class="title-bar"></span>Genres</h2>
+      <div class="genre-tabs">
+        <button class="gtab active" data-genre="28">Action</button>
+        <button class="gtab" data-genre="35">Comedy</button>
+        <button class="gtab" data-genre="27">Horror</button>
+        <button class="gtab" data-genre="10749">Romance</button>
+        <button class="gtab" data-genre="878">Sci-Fi</button>
+        <button class="gtab" data-genre="18">Drama</button>
+        <button class="gtab" data-genre="16">Animation</button>
+      </div>
+    </div>
+    <div class="card-row">
+      <button class="row-arrow left" onclick="scrollRow('genreTrack',-1)">&#8249;</button>
+      <div class="row-track" id="genreTrack"></div>
+      <button class="row-arrow right" onclick="scrollRow('genreTrack',1)">&#8250;</button>
+    </div>
+  </section>
+
+  <section class="section" id="continueSection" style="display:none">
+    <div class="section-head">
+      <h2 class="section-title"><span class="title-bar"></span>Continue Watching</h2>
+    </div>
+    <div class="card-row">
+      <button class="row-arrow left" onclick="scrollRow('continueTrack',-1)">&#8249;</button>
+      <div class="row-track" id="continueTrack"></div>
+      <button class="row-arrow right" onclick="scrollRow('continueTrack',1)">&#8250;</button>
+    </div>
+  </section>
+</div>
+<!-- ── MOVIES PAGE ── -->
+<div class="page" id="moviesPage">
+  <div class="browse-header">
+    <h1 class="browse-title">Movies</h1>
+    <div class="filter-row">
+      <select class="filter-select" id="movieSort">
+        <option value="popular">Popular</option>
+        <option value="top_rated">Top Rated</option>
+        <option value="now_playing">Now Playing</option>
+        <option value="upcoming">Upcoming</option>
+      </select>
+      <select class="filter-select" id="movieGenre">
+        <option value="">All Genres</option>
+        <option value="28">Action</option>
+        <option value="12">Adventure</option>
+        <option value="16">Animation</option>
+        <option value="35">Comedy</option>
+        <option value="80">Crime</option>
+        <option value="18">Drama</option>
+        <option value="14">Fantasy</option>
+        <option value="27">Horror</option>
+        <option value="10749">Romance</option>
+        <option value="878">Sci-Fi</option>
+        <option value="53">Thriller</option>
+      </select>
+    </div>
+  </div>
+  <div class="browse-grid" id="moviesGrid"></div>
+  <div class="load-more-wrap">
+    <button class="load-more-btn" id="moviesLoadMore">Load More</button>
+  </div>
+</div>
+
+<!-- ── SERIES PAGE ── -->
+<div class="page" id="seriesPage">
+  <div class="browse-header">
+    <h1 class="browse-title">Series</h1>
+    <div class="filter-row">
+      <select class="filter-select" id="seriesSort">
+        <option value="popular">Popular</option>
+        <option value="top_rated">Top Rated</option>
+        <option value="on_the_air">On The Air</option>
+        <option value="airing_today">Airing Today</option>
+      </select>
+      <select class="filter-select" id="seriesGenre">
+        <option value="">All Genres</option>
+        <option value="10759">Action & Adventure</option>
+        <option value="16">Animation</option>
+        <option value="35">Comedy</option>
+        <option value="80">Crime</option>
+        <option value="18">Drama</option>
+        <option value="10765">Sci-Fi & Fantasy</option>
+        <option value="9648">Mystery</option>
+        <option value="10768">War & Politics</option>
+      </select>
+    </div>
+  </div>
+  <div class="browse-grid" id="seriesGrid"></div>
+  <div class="load-more-wrap">
+    <button class="load-more-btn" id="seriesLoadMore">Load More</button>
+  </div>
+</div>
+
+<!-- ── SEARCH PAGE ── -->
+<div class="page" id="searchPage">
+  <div class="browse-header">
+    <h1 class="browse-title">Results for <span id="searchQueryLabel" class="accent-text"></span></h1>
+  </div>
+  <div class="browse-grid" id="searchGrid"></div>
+  <div class="empty-state" id="searchEmpty" style="display:none">
+    <div class="empty-icon">🔍</div>
+    <p>No results found</p>
+  </div>
+</div>
+
+<!-- ── DETAIL PAGE ── -->
+<div class="page" id="detailPage">
+  <div class="detail-hero">
+    <button class="detail-back" id="detailBack">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    </button>
+    <div class="detail-hero-bg" id="detailHeroBg"></div>
+    <div class="detail-hero-overlay"></div>
+    <div class="detail-hero-content" id="detailHeroContent"></div>
+  </div>
+
+  <!-- All detail sections centered -->
+  <div class="detail-content-wrap">
+
+    <!-- Player -->
+    <div class="detail-player-section" id="detailPlayerSection" style="display:none">
+      <div class="player-label">Now Playing</div>
+      <div class="player-source-bar">
+        <span class="player-source-label">Player:</span>
+        <button class="psrc-btn active" data-src="vidking">VidKing (Primary)</button>
+        <button class="psrc-btn" data-src="vidsrc">VidSrc (Backup)</button>
+      </div>
+      <div class="ep-bar" id="epBar" style="display:none">
+        <select class="ep-select" id="detailSeason"></select>
+        <select class="ep-select" id="detailEpisode"></select>
+        <button class="ep-play-btn" id="epPlayBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Play Episode
+        </button>
+      </div>
+      <div class="player-frame-wrap">
+        <iframe id="playerFrame" allowfullscreen allow="autoplay; fullscreen; encrypted-media" scrolling="no"></iframe>
+      </div>
+      <div id="messageArea" class="message-area"></div>
+    </div>
+
+    <!-- Cast -->
+    <div class="detail-section" id="detailCast" style="display:none">
+      <h3 class="detail-section-title"><span class="title-bar"></span>Actors</h3>
+      <div class="cast-grid" id="castGrid"></div>
+    </div>
+
+    <!-- Episodes (TV only) -->
+    <div class="detail-section" id="detailEpisodes" style="display:none">
+      <div class="ep-header">
+        <h3 class="detail-section-title"><span class="title-bar"></span>Episodes</h3>
+        <div class="ep-controls">
+          <select class="ep-select" id="epSeasonSelect"></select>
+          <div class="ep-search-wrap">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="ep-search-input" id="epSearchInput" placeholder="Search episode...">
+          </div>
+        </div>
+      </div>
+      <div class="ep-list" id="epList"></div>
+    </div>
+
+    <!-- Similar -->
+    <div class="detail-section" id="detailSimilar" style="display:none">
+      <h3 class="detail-section-title"><span class="title-bar"></span>Similar</h3>
+      <div class="card-row">
+        <button class="row-arrow left" onclick="scrollRow('similarTrack',-1)">&#8249;</button>
+        <div class="row-track" id="similarTrack"></div>
+        <button class="row-arrow right" onclick="scrollRow('similarTrack',1)">&#8250;</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── MODALS ── -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal auth-modal">
+    <button class="modal-close" onclick="closeModal('loginModal')">✕</button>
+    <div class="auth-logo">VortxStream</div>
+    <h2 class="auth-title">Welcome back</h2>
+    <p class="auth-sub">Sign in to continue watching</p>
+    <div class="auth-form">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" class="form-input" id="loginEmail" placeholder="your@email.com">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" class="form-input" id="loginPassword" placeholder="••••••••">
+      </div>
+      <div class="form-error" id="loginError"></div>
+      <button class="auth-submit-btn" id="loginSubmit">
+        <span class="btn-text">Sign In</span>
+        <span class="btn-loader" style="display:none"></span>
+      </button>
+    </div>
+    <p class="auth-switch">Don't have an account? <button onclick="switchModal('loginModal','signupModal')">Sign up</button></p>
+  </div>
+</div>
+
+<div class="modal-overlay" id="signupModal">
+  <div class="modal auth-modal">
+    <button class="modal-close" onclick="closeModal('signupModal')">✕</button>
+    <div class="auth-logo">VortxStream</div>
+    <h2 class="auth-title">Create account</h2>
+    <p class="auth-sub">Start watching for free</p>
+    <div class="auth-form">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" class="form-input" id="signupName" placeholder="Your name">
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" class="form-input" id="signupEmail" placeholder="your@email.com">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" class="form-input" id="signupPassword" placeholder="Min 6 characters">
+      </div>
+      <div class="form-error" id="signupError"></div>
+      <button class="auth-submit-btn" id="signupSubmit">
+        <span class="btn-text">Create Account</span>
+        <span class="btn-loader" style="display:none"></span>
+      </button>
+    </div>
+    <p class="auth-switch">Already have an account? <button onclick="switchModal('signupModal','loginModal')">Sign in</button></p>
+  </div>
+</div>
+
+<div class="modal-overlay" id="watchlistModal">
+  <div class="modal wide-modal">
+    <button class="modal-close" onclick="closeModal('watchlistModal')">✕</button>
+    <h2 class="modal-title-h">My Watchlist</h2>
+    <div class="browse-grid" id="watchlistGrid"></div>
+    <div class="empty-state" id="watchlistEmpty" style="display:none">
+      <div class="empty-icon">🎬</div>
+      <p>Your watchlist is empty</p>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+
+<footer style="
+  text-align: center;
+  padding:12px 8px 16px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px;
+  color: rgba(240,240,248,0.35);
+  letter-spacing: 0.04em;
+  position: relative;
+  z-index: 1;
+">
+  Made with <span style="color:#e05252;">❤️</span> by
+  <a href="https://www.instagram.com/vortx_43" target="_blank" style="
+    color: #8b5cf6;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+  "
+  onmouseover="this.style.color='#06b6d4'"
+  onmouseout="this.style.color='#8b5cf6'"
+  >Subhankar</a>
+  &nbsp;© 2026
+</footer>
+</body>
+</html>
