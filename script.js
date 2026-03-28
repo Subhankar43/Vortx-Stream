@@ -1,8 +1,8 @@
 // ── VortxStream — app.js ──
 
 // ── Config ──
-const WORKER_URL = 'replace with your own'
-const TMDB_KEY  = 'replace with you own'
+const WORKER_URL = 'https://vortxstream-auth.russiandekho.workers.dev';
+const TMDB_KEY  = '90398b72e79f3183a7d6d436bef5c93f';
 const TMDB_BASE = 'https://api.themoviedb.org/3';
 const IMG       = 'https://image.tmdb.org/t/p/';
 const VIDKING   = 'https://www.vidking.net/embed';
@@ -76,6 +76,69 @@ function setupNav() {
       if (page === 'series' && !document.getElementById('seriesGrid').children.length) loadSeriesPage();
     });
   });
+// ── Hamburger menu ──
+const hamburger   = document.getElementById('hamburgerBtn');
+const mobileMenu  = document.getElementById('mobileMenu');
+
+hamburger?.addEventListener('click', () => {
+  hamburger.classList.toggle('open');
+  mobileMenu.classList.toggle('open');
+});
+
+// Close mobile menu when clicking outside
+document.addEventListener('click', e => {
+  if (!hamburger?.contains(e.target) && !mobileMenu?.contains(e.target)) {
+    hamburger?.classList.remove('open');
+    mobileMenu?.classList.remove('open');
+  }
+});
+
+// Mobile nav links
+document.querySelectorAll('.mobile-link[data-page]').forEach(link => {
+  link.addEventListener('click', e => {
+    e.preventDefault();
+    const page = link.dataset.page;
+    showPage(page);
+    // Sync active state with mobile links
+    document.querySelectorAll('.mobile-link').forEach(l => l.classList.remove('active'));
+    link.classList.add('active');
+    hamburger?.classList.remove('open');
+    mobileMenu?.classList.remove('open');
+    if (page === 'movies' && !document.getElementById('moviesGrid').children.length) loadMoviesPage();
+    if (page === 'series' && !document.getElementById('seriesGrid').children.length) loadSeriesPage();
+  });
+});
+
+// Mobile auth buttons
+document.getElementById('mobileLoginBtn')?.addEventListener('click', () => {
+  openModal('loginModal');
+  hamburger?.classList.remove('open');
+  mobileMenu?.classList.remove('open');
+});
+document.getElementById('mobileSignupBtn')?.addEventListener('click', () => {
+  openModal('signupModal');
+  hamburger?.classList.remove('open');
+  mobileMenu?.classList.remove('open');
+});
+
+// Mobile watchlist / progress / logout
+document.getElementById('mobileWatchlistBtn')?.addEventListener('click', () => {
+  openWatchlist();
+  hamburger?.classList.remove('open');
+  mobileMenu?.classList.remove('open');
+});
+document.getElementById('mobileProgressBtn')?.addEventListener('click', () => {
+  showPage('home');
+  loadContinueWatching();
+  hamburger?.classList.remove('open');
+  mobileMenu?.classList.remove('open');
+});
+document.getElementById('mobileLogoutBtn')?.addEventListener('click', () => {
+  logout();
+  hamburger?.classList.remove('open');
+  mobileMenu?.classList.remove('open');
+});
+
 
   const pw = document.getElementById('profileWrap');
   document.getElementById('profileAvatar')?.addEventListener('click', () => pw.classList.toggle('open'));
@@ -771,6 +834,13 @@ function setLoggedIn(user) {
   document.getElementById('profileName').textContent   = user.name;
   document.getElementById('profileEmail').textContent  = user.email;
   document.getElementById('continueSection').style.display = 'block';
+  // Sync mobile menu
+document.getElementById('mobileLoginBtn').style.display    = 'none';
+document.getElementById('mobileSignupBtn').style.display   = 'none';
+document.getElementById('mobileProfile').style.display     = 'block';
+document.getElementById('mobileAvatar').textContent        = user.name.charAt(0).toUpperCase();
+document.getElementById('mobileProfileName').textContent   = user.name;
+document.getElementById('mobileProfileEmail').textContent  = user.email;
   loadContinueWatching();
 }
 
@@ -794,6 +864,10 @@ function logout() {
   document.getElementById('profileWrap').style.display = 'none';
   document.getElementById('continueSection').style.display = 'none';
   document.getElementById('profileWrap').classList.remove('open');
+  // Sync mobile menu
+document.getElementById('mobileLoginBtn').style.display  = 'flex';
+document.getElementById('mobileSignupBtn').style.display = 'flex';
+document.getElementById('mobileProfile').style.display   = 'none';
 }
 
 // ── Watchlist — reads local cache, writes to KV ──

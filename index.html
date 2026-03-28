@@ -56,6 +56,37 @@
       </div>
     </div>
   </div>
+  <!-- Hamburger button — add this inside .nav, at the very end before </nav> -->
+<button class="hamburger" id="hamburgerBtn" aria-label="Menu">
+  <span></span>
+  <span></span>
+  <span></span>
+</button>
+
+<!-- Mobile menu — add this RIGHT AFTER </nav> -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#" class="mobile-link active" data-page="home">Home</a>
+  <a href="#" class="mobile-link" data-page="movies">Movies</a>
+  <a href="#" class="mobile-link" data-page="series">Series</a>
+  <a href="https://vortx.pages.dev" class="mobile-link" target="_blank">Portfolio</a>
+  <div class="mobile-menu-divider"></div>
+  <button class="mobile-auth-btn btn-outline" id="mobileLoginBtn">Login</button>
+  <button class="mobile-auth-btn btn-primary" id="mobileSignupBtn">Sign Up</button>
+  <!-- Profile section — shown when logged in -->
+  <div class="mobile-profile" id="mobileProfile" style="display:none">
+    <div class="mobile-profile-info">
+      <div class="mobile-avatar" id="mobileAvatar">V</div>
+      <div>
+        <div class="mobile-profile-name" id="mobileProfileName"></div>
+        <div class="mobile-profile-email" id="mobileProfileEmail"></div>
+      </div>
+    </div>
+    <div class="mobile-menu-divider"></div>
+    <button class="mobile-link" id="mobileWatchlistBtn">🎬 My Watchlist</button>
+    <button class="mobile-link" id="mobileProgressBtn">▶ Continue Watching</button>
+    <button class="mobile-link danger" id="mobileLogoutBtn">⏻ Logout</button>
+  </div>
+</div>
 </nav>
 
 <!-- ── HOME PAGE ── -->
@@ -293,7 +324,10 @@
 <div class="modal-overlay" id="loginModal">
   <div class="modal auth-modal">
     <button class="modal-close" onclick="closeModal('loginModal')">✕</button>
-    <div class="auth-logo">VortxStream</div>
+   <div class="auth-avatar-wrap" style="display: flex; justify-content: center; align-items: center; margin: 0 auto 24px auto; padding: 8px;">
+  <img src="https://i.ibb.co/qFg65htB/img-2.png" alt="VortxStream" class="auth-avatar-img" style="width: 100px; height: 100px; object-fit: contain; display: block; margin: 0 auto; padding: 4px;">
+</div>
+    <div class="auth-logo">Made with ❤️ by <a href="https://www.instagram.com/vortx_43">Subhankar</a></div>
     <h2 class="auth-title">Welcome back</h2>
     <p class="auth-sub">Sign in to continue watching</p>
     <div class="auth-form">
@@ -318,7 +352,10 @@
 <div class="modal-overlay" id="signupModal">
   <div class="modal auth-modal">
     <button class="modal-close" onclick="closeModal('signupModal')">✕</button>
-    <div class="auth-logo">VortxStream</div>
+   <div class="auth-avatar-wrap" style="display: flex; justify-content: center; align-items: center; margin: 0 auto 24px auto; padding: 8px;">
+  <img src="https://i.ibb.co/qFg65htB/img-2.png" alt="VortxStream" class="auth-avatar-img" style="width: 100px; height: 100px; object-fit: contain; display: block; margin: 0 auto; padding: 4px;">
+</div>
+    <div class="auth-logo">Made with ❤️ by <a href="https://www.instagram.com/vortx_43">Subhankar</a></div>
     <h2 class="auth-title">Create account</h2>
     <p class="auth-sub">Start watching for free</p>
     <div class="auth-form">
