@@ -116,11 +116,7 @@ To get your own key, sign up at [themoviedb.org](https://www.themoviedb.org/) an
 
 ## 🔐 Authentication
 
-Auth is handled via a **Cloudflare Worker** at:
-
-```
-https://vortxstream-auth.russiandekho.workers.dev
-```
+Auth is handled via **Cloudflare Worker** 
 
 - Login and Sign Up via email & password
 - Session persisted in `localStorage`
@@ -131,6 +127,7 @@ https://vortxstream-auth.russiandekho.workers.dev
 
 This project is for personal/educational use.  
 All movie data is sourced from [TMDB](https://www.themoviedb.org/).
+All the movie/series data taken from third party website. We dont store anything.
 
 ---
 
