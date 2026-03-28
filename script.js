@@ -1,8 +1,8 @@
 // ── VortxStream — app.js ──
 
 // ── Config ──
-const WORKER_URL = 'https://vortxstream-auth.russiandekho.workers.dev';
-const TMDB_KEY  = '90398b72e79f3183a7d6d436bef5c93f';
+const WORKER_URL = 'use yours';
+const TMDB_KEY  = 'use yours';
 const TMDB_BASE = 'https://api.themoviedb.org/3';
 const IMG       = 'https://image.tmdb.org/t/p/';
 const VIDKING   = 'https://www.vidking.net/embed';
