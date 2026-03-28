@@ -126,8 +126,7 @@ Auth is handled via **Cloudflare Worker**
 ## 📄 License
 
 This project is for personal/educational use.  
-All movie data is sourced from [TMDB](https://www.themoviedb.org/).
-All the movie/series data taken from third party website. We dont store anything.
+All movie data is sourced from [TMDB](https://www.themoviedb.org/). and third party websites.
 
 ---
 
