@@ -7,7 +7,7 @@ A sleek, dark-themed movie and series streaming discovery platform built with va
 ## 🌐 Live Preview
 
 > Hosted on Cloudflare Pages  
-> 👤 Portfolio: [vortx.pages.dev](https://vortx.pages.dev/)
+> 👤 Portfolio: [vortx-stream.pages.dev](https://vortx-stream.pages.dev/)
 
 ---
 
