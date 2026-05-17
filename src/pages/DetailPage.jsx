@@ -214,7 +214,21 @@ export default function DetailPage({ item, type, onBack, onOpen }) {
             </div>
           )}
         </div>
-
+{/* Download API*/}
+<div className="detail-section" style={{ textAlign: 'center' }}>
+  <h3 className="detail-section-title" style={{ justifyContent: 'center' }}><span className="title-bar"/>Download your favourite movie /series </h3>
+  {type === 'movie' ? (
+    <a href={`https://rivestream.ru/download?type=movie&id=${item.id}`} target="_blank" rel="noreferrer"
+      style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'11px 24px', borderRadius:10, background:'var(--surface2)', border:'1px solid var(--accent-border)', color:'var(--accent)', fontWeight:700, fontSize:14, textDecoration:'none' }}>
+      ⬇ Download Movie
+    </a>
+  ) : (
+    <a href={`https://rivestream.ru/download?type=tv&id=${item.id}&season=${selSeason}&episode=${selEp}`} target="_blank" rel="noreferrer"
+      style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'11px 24px', borderRadius:10, background:'var(--surface2)', border:'1px solid var(--accent-border)', color:'var(--accent)', fontWeight:700, fontSize:14, textDecoration:'none' }}>
+      ⬇ Download S{selSeason} E{selEp}
+    </a>
+  )}
+</div>
         {/* Cast */}
         {cast.length > 0 && (
           <div className="detail-section">
