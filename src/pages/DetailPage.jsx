@@ -3,6 +3,7 @@ import { tmdb, IMG, SERVERS, GENRE_MAP } from '../utils/tmdb';
 import Card from '../components/Card';
 import CardRow from '../components/CardRow';
 import { useAuth } from '../hooks/useAuth';
+import { WORKER_URL } from '../utils/tmdb';
 
 export default function DetailPage({ item, type, onBack, onOpen }) {
   const { user, isInWatchlist, toggleWatchlist, saveProgress, getProgress } = useAuth();
@@ -34,6 +35,24 @@ export default function DetailPage({ item, type, onBack, onOpen }) {
   useEffect(() => {
     if (detail && type === 'tv') loadEpisodes(selSeason);
   }, [selSeason, detail]);
+
+  // ✅ ADD THIS — Watch tracking (paste exactly here, after line 36)
+  useEffect(() => {
+    if (!user || !item || !playing) return;
+    fetch(`${WORKER_URL}/track/watch`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: user.email, movieId: item.id, title: item.title || item.name, type, watchSeconds: 0 }),
+    }).catch(() => {});
+    const interval = setInterval(() => {
+      fetch(`${WORKER_URL}/track/watch`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email, movieId: item.id, title: item.title || item.name, type, watchSeconds: 60 }),
+      }).catch(() => {});
+    }, 60000);
+    return () => clearInterval(interval);
+  }, [playing, item?.id]);
 
   async function loadDetail() {
     const [det, credits, sim] = await Promise.all([

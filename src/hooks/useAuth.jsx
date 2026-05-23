@@ -13,6 +13,17 @@ export function AuthProvider({ children }) {
         const u = JSON.parse(s);
         setUser(u);
         syncFromKV(u.email);
+          // Ban check on page load/refresh
+      fetch(`${WORKER_URL}/auth/check`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: u.email }),
+      }).then(r => r.json()).then(data => {
+        if (!data.status && data.banned) {
+          localStorage.removeItem('vx-session');
+          setUser(null);
+        }
+      }).catch(() => {});
       }
     } catch {}
   }, []);

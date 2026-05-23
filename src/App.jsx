@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import Navbar from './components/Navbar';
 import HomePage from './pages/HomePage';
@@ -7,11 +7,45 @@ import MoviesPage from './pages/MoviesPage';
 import SeriesPage from './pages/SeriesPage';
 import SearchPage from './pages/SearchPage';
 import DetailPage from './pages/DetailPage';
+import AdminPage from './pages/AdminPage';
 import { LoginModal, SignupModal, WatchlistModal } from './components/AuthModals';
+import { WORKER_URL } from './utils/tmdb';
 
 function AppInner() {
+  const [announcements, setAnnouncements] = useState([]);
+  const [siteDown, setSiteDown] = useState(false);
+useEffect(() => {
+  fetch(`${WORKER_URL}/public/announcements`)
+    .then(r => r.json())
+    .then(d => { if (d.announcements) setAnnouncements(d.announcements); })
+    .catch(() => {});
+}, []);
+
+useEffect(() => {
+    if (!WORKER_URL) return;
+ const checkMaintenance = () => {
+    fetch(`${WORKER_URL}/maintenance`)
+      .then(r => r.json())
+      .then(d => {
+        if (d.enabled) {
+          setSiteDown(true);
+        } else if (siteDown) {
+          
+          setSiteDown(false);
+          window.location.reload();
+        }
+      })
+      .catch(() => {});
+  };
+
+  checkMaintenance();
+  const id = setInterval(checkMaintenance, 10000);
+  return () => clearInterval(id);
+}, [siteDown]); 
+
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation(); // ← needed to detect /admin
 
   const [loginOpen, setLoginOpen] = useState(false);
   const [signupOpen, setSignupOpen] = useState(false);
@@ -58,13 +92,31 @@ function AppInner() {
     }
   }
 
+  // 🔐 ADMIN ROUTE — must be BEFORE the login guard
+  if (location.pathname === '/admin') {
+    return <AdminPage />;
+  }
+
+  if (siteDown) {
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: '#060d1a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Outfit', sans-serif" }}>
+      <div style={{ textAlign: 'center', padding: 40 }}>
+        <div style={{ fontSize: 65, marginBottom: 20 }}>Hello Everyone</div>
+        <div style={{ fontSize: 64, marginBottom: 20 }}>🔧</div>
+        <div style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 40, color: '#e8f4ff', letterSpacing: '0.08em', marginBottom: 12 }}>Under Maintenance</div>
+        <div style={{ fontSize: 15, color: 'rgba(232,244,255,0.45)', maxWidth: 400 }}>Currently, I'm working on some improvements. The service will be back shortly!</div>
+      </div>
+    </div>
+  );
+}
+
   // 🔥 LOGIN REQUIRED SCREEN
   if (!user) {
     return (
       <>
         <LoginModal
           active={loginOpen}
-          onClose={() => setLoginOpen(false)}   // ✅ FIXED
+          onClose={() => setLoginOpen(false)}
           onSwitch={() => {
             setLoginOpen(false);
             setSignupOpen(true);
@@ -73,7 +125,7 @@ function AppInner() {
 
         <SignupModal
           active={signupOpen}
-          onClose={() => setSignupOpen(false)}  // ✅ FIXED
+          onClose={() => setSignupOpen(false)}
           onSwitch={() => {
             setSignupOpen(false);
             setLoginOpen(true);
@@ -131,20 +183,12 @@ function AppInner() {
       <div style={{ fontSize: 13, color: '#00c4ff', marginBottom: 8 }}>
         🔔 Announcements
       </div>
-
-      <ul style={{
-        paddingLeft: 18,
-        fontSize: 13,
-        color: '#ccc',
-        lineHeight: 1.6
-      }}>
-        <li>Use Brave Browser 🦁 to avoid ads</li>
-        <li>Watchlist feature available</li>
-        <li>Track your progress</li>
-        <li>Streaming speed improved</li>
-        <li>Multiple server added to improve the performance</li>
-       <li>All the data taken from third party websites</li>
-      </ul>
+<ul style={{ paddingLeft: 18, fontSize: 13, color: '#ccc', lineHeight: 1.6 }}>
+  {announcements.length > 0
+    ? announcements.map((a, i) => <li key={i}>{a}</li>)
+    : <li>Loading...</li>
+  }
+</ul>
     </div>
 
     {/* Buttons */}
@@ -191,6 +235,11 @@ function AppInner() {
           onNavClick={handleNavClick}
         />
         <DetailPage item={detailItem} type={detailType} onBack={closeDetail} onOpen={openDetail} />
+        <WatchlistModal
+          active={watchlistOpen}
+          onClose={() => setWatchlistOpen(false)}
+          onOpen={openDetail}
+      />
       </>
     );
   }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { WORKER_URL, IMG } from '../utils/tmdb';
 import Card from './Card';
@@ -34,7 +34,7 @@ export function LoginModal({ active, onClose, onSwitch }) {
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.error || 'Login failed'); }
+      if (!res.ok) { setError(data.msg || data.error || 'Login failed'); }
       else { login(data.user); onClose(); setEmail(''); setPassword(''); }
     } catch { setError('Network error. Try again.'); }
     setLoading(false);
