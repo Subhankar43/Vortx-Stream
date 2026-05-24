@@ -75,6 +75,8 @@ export function SignupModal({ active, onClose, onSwitch }) {
   async function handleSubmit() {
     if (!name || !email || !password) { setError('Please fill all fields'); return; }
     if (password.length < 6) { setError('Password must be at least 6 characters'); return; }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+if (!emailRegex.test(email)) { setError('Please enter a valid email address'); return; }   
     setLoading(true); setError('');
     try {
       const res = await fetch(`${WORKER_URL}/signup`, {

@@ -248,7 +248,7 @@ function AdminPanel({ onLogout }) {
 
   useEffect(() => {
     if (!autoRefresh) return;
-    const id = setInterval(() => loadAll(), 30000);
+    const id = setInterval(() => loadAll(), 15000);
     return () => clearInterval(id);
   }, [autoRefresh, loadAll]);
 
