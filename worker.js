@@ -91,7 +91,7 @@ async function handleRequest(request) {
       return json({ status: false, msg: 'Incorrect password' });
     }
     if (user.banned && (!user.bannedUntil || user.bannedUntil > Date.now())) {
-  return json({ status: false, msg: '🚫 Account banned by Admin.' });
+  return json({ status: false, msg: '🚫 Account banned by Subhankar.' });
 }
     // Update last seen
     user.lastSeen = Date.now();

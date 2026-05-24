@@ -14,6 +14,8 @@ import { WORKER_URL } from './utils/tmdb';
 function AppInner() {
   const [announcements, setAnnouncements] = useState([]);
   const [siteDown, setSiteDown] = useState(false);
+    const { user } = useAuth();
+
 useEffect(() => {
   fetch(`${WORKER_URL}/public/announcements`)
     .then(r => r.json())
@@ -43,7 +45,29 @@ useEffect(() => {
   return () => clearInterval(id);
 }, [siteDown]); 
 
-  const { user } = useAuth();
+useEffect(() => {
+  if (!user?.email) return;
+  const checkBan = () => {
+    fetch(`${WORKER_URL}/auth/check`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: user.email }),
+    })
+      .then(r => r.json())
+      .then(d => {
+        if (d.banned) {
+          sessionStorage.clear();
+          localStorage.clear();
+          window.location.reload();
+        }
+      })
+      .catch(() => {});
+  };
+  checkBan();
+  const id = setInterval(checkBan, 15000);
+  return () => clearInterval(id);
+}, [user?.email]);
+
   const navigate = useNavigate();
   const location = useLocation(); // ← needed to detect /admin
 

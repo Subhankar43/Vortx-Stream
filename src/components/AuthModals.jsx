@@ -34,7 +34,7 @@ export function LoginModal({ active, onClose, onSwitch }) {
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.msg || data.error || 'Login failed'); }
+      if (!res.ok || !data.status) { setError(data.msg || data.error || 'Login failed'); }
       else { login(data.user); onClose(); setEmail(''); setPassword(''); }
     } catch { setError('Network error. Try again.'); }
     setLoading(false);

@@ -30,6 +30,14 @@ export function AuthProvider({ children }) {
 
   async function syncFromKV(email) {
     try {
+      const banRes = await fetch(`${WORKER_URL}/auth/check`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const banData = await banRes.json();
+    if (banData.banned) { logout(); return; }
+
       const [wlRes, prRes] = await Promise.all([
         fetch(`${WORKER_URL}/watchlist/get?email=${encodeURIComponent(email)}`),
         fetch(`${WORKER_URL}/progress/get?email=${encodeURIComponent(email)}`),
@@ -128,6 +136,21 @@ export function AuthProvider({ children }) {
     if (!user) return 0;
     return getProgressData()[`${type}-${id}`]?.pct || 0;
   }
+useEffect(() => {
+  if (!user) return;
+  const id = setInterval(async () => {
+    try {
+      const res = await fetch(`${WORKER_URL}/auth/check`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email }),
+      });
+      const data = await res.json();
+      if (data.banned) logout();
+    } catch {}
+  }, 60000);
+  return () => clearInterval(id);
+}, [user]);
 
   return (
     <AuthContext.Provider value={{
