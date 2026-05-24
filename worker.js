@@ -91,7 +91,7 @@ async function handleRequest(request) {
       return json({ status: false, msg: 'Incorrect password' });
     }
     if (user.banned && (!user.bannedUntil || user.bannedUntil > Date.now())) {
-  return json({ status: false, msg: '🚫 Account banned by Subhankar.' });
+  return json({ status: false, msg: '🚫 Account banned by Admin.' });
 }
     // Update last seen
     user.lastSeen = Date.now();
@@ -225,6 +225,22 @@ if (shouldCountView) await VORTX_USERS.put(lastViewKey, String(Date.now()));
       return json({ status: false, msg: e.message });
     }
   }
+
+    if (path === '/review/save' && request.method === 'POST') {
+  const { email, movieId, type, rating, text } = body;
+  if (!email || !movieId || !rating) return json({ status: false, msg: 'Missing fields' });
+  const key = `__review__:${movieId}:${email}`;
+  await VORTX_USERS.put(key, JSON.stringify({ email, movieId, type, rating, text, ts: Date.now() }));
+  return json({ status: true });
+}
+
+if (path === '/review/get' && request.method === 'GET') {
+  const movieId = url.searchParams.get('movieId');
+  if (!movieId) return json({ status: false, msg: 'Missing movieId' });
+  const list = await VORTX_USERS.list({ prefix: `__review__:${movieId}:` });
+  const reviews = await Promise.all(list.keys.map(k => VORTX_USERS.get(k.name).then(v => JSON.parse(v))));
+  return json({ status: true, reviews });
+}
 
   // ══════════════════════════════════════════════════════════════
   // ADMIN ENDPOINTS — all protected by x-admin-secret header
@@ -362,6 +378,18 @@ if (path === '/admin/homepage-notice/save' && request.method === 'POST') {
   await VORTX_USERS.put('__homepage_notice__', notice || '');
   return json({ status: true });
 }
+// GET /admin/maintenance
+if (path === '/admin/maintenance' && request.method === 'GET') {
+  const raw = await VORTX_USERS.get('__maintenance__') || 'false';
+  return json({ status: true, enabled: raw === 'true' });
+}
+
+// POST /admin/maintenance
+if (path === '/admin/maintenance' && request.method === 'POST') {
+  const { enabled } = body;
+  await VORTX_USERS.put('__maintenance__', String(!!enabled));
+  return json({ status: true });
+}
 
     return json({ status: false, msg: 'Unknown admin endpoint' }, 404);
   }
@@ -407,18 +435,7 @@ if (path === '/' && request.method === 'GET') {
     headers: { 'Content-Type': 'text/html', ...CORS }
   });
 }
-// GET /admin/maintenance
-if (path === '/admin/maintenance' && request.method === 'GET') {
-  const raw = await VORTX_USERS.get('__maintenance__') || 'false';
-  return json({ status: true, enabled: raw === 'true' });
-}
 
-// POST /admin/maintenance
-if (path === '/admin/maintenance' && request.method === 'POST') {
-  const { enabled } = body;
-  await VORTX_USERS.put('__maintenance__', String(!!enabled));
-  return json({ status: true });
-}
 if (path === '/maintenance' && request.method === 'GET') {
   const raw = await VORTX_USERS.get('__maintenance__') || 'false';
   return json({ enabled: raw === 'true' });

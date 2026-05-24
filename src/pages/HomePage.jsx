@@ -15,30 +15,60 @@ const GENRES = [
 
 export default function HomePage({ onOpen }) {
   const { user, getProgressData } = useAuth();
-
   const [trendItems, setTrendItems]  = useState([]);
   const [trendType,  setTrendType]   = useState('movie');
   const [trendLoad,  setTrendLoad]   = useState(true);
-
   const [topItems,   setTopItems]    = useState([]);
   const [topType,    setTopType]     = useState('movie');
   const [topLoad,    setTopLoad]     = useState(true);
-
   const [top10,      setTop10]       = useState([]);
   const [top10Load,  setTop10Load]   = useState(true);
-
   const [genre,      setGenre]       = useState(28);
   const [genreItems, setGenreItems]  = useState([]);
   const [genreLoad,  setGenreLoad]   = useState(true);
-
   const [continueItems, setContinueItems] = useState([]);
+  const [newItems, setNewItems] = useState([]);
+  const [newType, setNewType]   = useState('movie');
+  const [newLoad, setNewLoad]   = useState(true);
+  const [recItems, setRecItems] = useState([]);
 
-  useEffect(() => { loadTop10(); loadTrending('movie'); loadTopRated('movie'); loadGenre(28); }, []);
   useEffect(() => { if (user) loadContinue(); }, [user]);
+  useEffect(() => { if (user) loadRecommendations(); }, [user]);
   useEffect(() => { loadTrending(trendType); }, [trendType]);
   useEffect(() => { loadTopRated(topType); }, [topType]);
   useEffect(() => { loadGenre(genre); }, [genre]);
+useEffect(() => { loadTop10(); loadTrending('movie'); loadTopRated('movie'); loadGenre(28); loadNewThisWeek(); }, []);
+async function loadNewThisWeek() {
+  const [movies, series] = await Promise.all([
+    tmdb('/movie/now_playing'),
+    tmdb('/tv/on_the_air'),
+  ]);
+  const m = (movies.results || []).filter(r => r.poster_path).slice(0, 10).map(r => ({ ...r, _type: 'movie' }));
+  const s = (series.results || []).filter(r => r.poster_path).slice(0, 10).map(r => ({ ...r, _type: 'tv' }));
+  setNewItems([...m, ...s]);
+}
+async function loadRecommendations() {
+  const prog = getProgressData();
+  const watched = Object.values(prog).filter(p => p.pct > 0);
+  if (!watched.length) return;
 
+  const details = await Promise.all(
+    watched.slice(0, 5).map(p => tmdb(`/${p.type}/${p.id}`))
+  );
+  
+  const genreCount = {};
+  details.forEach(d => {
+    (d.genre_ids || (d.genres || []).map(g => g.id)).forEach(id => {
+      genreCount[id] = (genreCount[id] || 0) + 1;
+    });
+  });
+  
+  const topGenre = Object.entries(genreCount).sort((a,b) => b[1]-a[1])[0]?.[0];
+  if (!topGenre) return;
+  
+  const data = await tmdb('/discover/movie', { with_genres: topGenre, sort_by: 'popularity.desc' });
+  setRecItems((data.results || []).filter(r => r.poster_path).slice(0, 20));
+}
   async function loadTop10() {
     setTop10Load(true);
     const data = await tmdb('/trending/all/day');
@@ -88,6 +118,37 @@ export default function HomePage({ onOpen }) {
     <div className="page">
      <NoticeBanner />
       <Hero onOpen={onOpen} />
+   {/* Continue Watching */}
+      {user && continueItems.length > 0 && (
+        <section className="section">
+          <div className="section-head">
+            <h2 className="section-title"><span className="title-bar" />Continue Watching</h2>
+          </div>
+          <CardRow items={continueItems} type="mixed" loading={false} onOpen={(item, _) => onOpen(item, item._p?.type || 'movie')} />
+        </section>
+      )}
+<div className="section">
+  <div className="section-header">
+    <h2 className="section-title">🆕 New This Week</h2>
+  </div>
+  <CardRow
+    items={newItems}
+    type="mixed"
+    loading={newItems.length === 0}
+    onOpen={(item) => onOpen(item, item._type || 'movie')}
+  />
+</div>
+      {/* Similar Suggestions */}
+
+{user && recItems.length > 0 && (
+  <section className="section">
+    <div className="section-head">
+      <h2 className="section-title"><span className="title-bar"/>🎯 Recommended for You</h2>
+    </div>
+    <CardRow items={recItems} type="movie" loading={false} onOpen={onOpen} />
+  </section>
+)}
+
       {/* TOP 10 */}
       <section className="section">
         <div className="section-head">
@@ -117,16 +178,6 @@ export default function HomePage({ onOpen }) {
           <button className="row-arrow right" onClick={() => document.getElementById('top10Track').scrollBy({ left: 600, behavior: 'smooth' })}>&#8250;</button>
         </div>
       </section>
-
-      {/* Continue Watching */}
-      {user && continueItems.length > 0 && (
-        <section className="section">
-          <div className="section-head">
-            <h2 className="section-title"><span className="title-bar" />Continue Watching</h2>
-          </div>
-          <CardRow items={continueItems} type="mixed" loading={false} onOpen={(item, _) => onOpen(item, item._p?.type || 'movie')} />
-        </section>
-      )}
 
       {/* Trending */}
       <section className="section">

@@ -7,7 +7,6 @@ import { WORKER_URL } from '../utils/tmdb';
 
 export default function DetailPage({ item, type, onBack, onOpen }) {
   const { user, isInWatchlist, toggleWatchlist, saveProgress, getProgress } = useAuth();
-
   const [detail,    setDetail]    = useState(null);
   const [cast,      setCast]      = useState([]);
   const [similar,   setSimilar]   = useState([]);
@@ -21,7 +20,14 @@ export default function DetailPage({ item, type, onBack, onOpen }) {
   const [iframeUrl, setIframeUrl] = useState('');
   const [inWl,      setInWl]      = useState(false);
   const [loading,   setLoading]   = useState(true);
+  const [trailerKey, setTrailerKey] = useState(null);
+const [trailerOpen, setTrailerOpen] = useState(false);
+const [reviews, setReviews]       = useState([]);
+const [myRating, setMyRating]     = useState(0);
+const [reviewText, setReviewText] = useState('');
+const [submitting, setSubmitting] = useState(false);
 
+useEffect(() => { if (item) loadReviews(); }, [item?.id]);
   useEffect(() => {
     if (!item) return;
     setLoading(true);
@@ -31,6 +37,7 @@ export default function DetailPage({ item, type, onBack, onOpen }) {
     window.scrollTo(0, 0);
     loadDetail();
   }, [item?.id, type]);
+
 
   useEffect(() => {
     if (detail && type === 'tv') loadEpisodes(selSeason);
@@ -60,6 +67,9 @@ export default function DetailPage({ item, type, onBack, onOpen }) {
       tmdb(`/${type}/${item.id}/credits`),
       tmdb(`/${type}/${item.id}/similar`),
     ]);
+    const videos = await tmdb(`/${type}/${item.id}/videos`);
+const trailer = (videos.results || []).find(v => v.type === 'Trailer' && v.site === 'YouTube');
+setTrailerKey(trailer?.key || null);
     setDetail(det);
     setCast((credits.cast || []).filter(c => c.profile_path).slice(0, 20));
     setSimilar((sim.results || []).filter(r => r.poster_path).slice(0, 20));
@@ -71,6 +81,28 @@ export default function DetailPage({ item, type, onBack, onOpen }) {
     setInWl(isInWatchlist(item.id, type));
     setLoading(false);
   }
+
+  async function loadReviews() {
+  try {
+    const res = await fetch(`${WORKER_URL}/review/get?movieId=${item.id}`);
+    const data = await res.json();
+    setReviews(data.reviews || []);
+    const mine = (data.reviews || []).find(r => r.email === user?.email);
+    if (mine) { setMyRating(mine.rating); setReviewText(mine.text || ''); }
+  } catch {}
+}
+
+async function submitReview() {
+  if (!myRating) return;
+  setSubmitting(true);
+  await fetch(`${WORKER_URL}/review/save`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: user.email, movieId: item.id, type, rating: myRating, text: reviewText }),
+  }).catch(() => {});
+  await loadReviews();
+  setSubmitting(false);
+}
 
   async function loadEpisodes(seasonNum) {
     const data = await tmdb(`/tv/${item.id}/season/${seasonNum}`);
@@ -160,6 +192,11 @@ export default function DetailPage({ item, type, onBack, onOpen }) {
               <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
               {type === 'tv' ? `Play S${selSeason} E${selEp}` : 'Watch Now'}
             </button>
+            {trailerKey && (
+  <button className="d-btn d-btn-wl" onClick={() => setTrailerOpen(true)}>
+    ▷ Watch Trailer
+  </button>
+)}
             <button className={`d-btn d-btn-wl ${inWl ? 'added' : ''}`} onClick={handleWl}>
               {inWl ? '✓ In Watchlist' : '+ Watchlist'}
             </button>
@@ -248,6 +285,51 @@ export default function DetailPage({ item, type, onBack, onOpen }) {
     </a>
   )}
 </div>
+<div className="detail-section">
+  <h3 className="detail-section-title"><span className="title-bar"/>Ratings & Reviews</h3>
+  
+  {/* Average */}
+  {reviews.length > 0 && (
+    <div style={{ marginBottom: 16, fontSize: 14, color: 'var(--text2)' }}>
+      ⭐ {(reviews.reduce((a,r) => a + r.rating, 0) / reviews.length).toFixed(1)} / 5 &nbsp;·&nbsp; {reviews.length} review{reviews.length > 1 ? 's' : ''}
+    </div>
+  )}
+
+  {/* Write review */}
+  {user && (
+    <div style={{ marginBottom: 24, padding: 16, background: 'var(--bg3)', borderRadius: 12 }}>
+      <div style={{ marginBottom: 8, fontSize: 13, color: 'var(--text2)' }}>Your Rating:</div>
+      <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
+        {[1,2,3,4,5].map(s => (
+          <span key={s} onClick={() => setMyRating(s)}
+            style={{ fontSize: 24, cursor: 'pointer', color: s <= myRating ? '#f59e0b' : 'var(--text3)' }}>★</span>
+        ))}
+      </div>
+      <textarea
+        placeholder="Write your review (optional)..."
+        value={reviewText}
+        onChange={e => setReviewText(e.target.value)}
+        style={{ width: '100%', padding: '10px 12px', background: 'var(--bg2)', border: '1px solid var(--border2)', borderRadius: 8, color: 'var(--text1)', fontSize: 13, resize: 'vertical', fontFamily: 'inherit' }}
+        rows={3}
+      />
+      <button onClick={submitReview} disabled={!myRating || submitting}
+        style={{ marginTop: 10, padding: '9px 20px', background: 'var(--accent)', border: 'none', borderRadius: 8, color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+        {submitting ? 'Saving...' : 'Submit Review'}
+      </button>
+    </div>
+  )}
+
+  {/* Reviews list */}
+  {reviews.filter(r => r.text).map((r, i) => (
+    <div key={i} style={{ padding: '12px 16px', marginBottom: 10, background: 'var(--bg3)', borderRadius: 10 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+        <span style={{ fontSize: 13, fontWeight: 600 }}>{r.email.split('@')[0]}</span>
+        <span style={{ color: '#f59e0b', fontSize: 13 }}>{'★'.repeat(r.rating)}</span>
+      </div>
+      <div style={{ fontSize: 13, color: 'var(--text2)' }}>{r.text}</div>
+    </div>
+  ))}
+</div>
         {/* Cast */}
         {cast.length > 0 && (
           <div className="detail-section">
@@ -310,7 +392,18 @@ export default function DetailPage({ item, type, onBack, onOpen }) {
             <CardRow items={similar} type={type} loading={false} onOpen={onOpen} />
           </div>
         )}
-
+        {trailerOpen && trailerKey && (
+  <div className="modal-overlay active" onClick={() => setTrailerOpen(false)}>
+    <div style={{ width:'100%', maxWidth:800, borderRadius:14, overflow:'hidden' }} onClick={e => e.stopPropagation()}>
+      <iframe
+        width="100%" style={{ aspectRatio:'16/9', border:'none', display:'block' }}
+        src={`https://www.youtube.com/embed/${trailerKey}?autoplay=1`}
+        allow="autoplay; fullscreen"
+        allowFullScreen
+      />
+    </div>
+  </div>
+)}
       </div>
     </div>
   );
